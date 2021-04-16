@@ -35,8 +35,6 @@ void read_chip_sequence(FILE *f, Chip *seq_out)
 
     while (fscanf(f, "%d", &word) != EOF)
     {
-        printf("%d\n", word);
-
         if (it == end)
         {
             fprintf(stderr, "error: input too large\n");
