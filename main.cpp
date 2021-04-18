@@ -4,6 +4,7 @@
 #include <iostream>
 #include <tuple>
 #include <vector>
+#include "get_time.h"
 
 using ChipSequence = std::array<int8_t, 1023>;
 
@@ -120,6 +121,7 @@ int main(int argc, const char **argv)
         auto file = std::ifstream(argv[1], std::ios::binary);
         auto chip_sequence = read_chip_sequence(file);
 
+        auto time = get_time();
         int satelite_nr = 1;
         for (auto &&bits : satelite_xored_bits)
         {
@@ -131,6 +133,8 @@ int main(int argc, const char **argv)
 
             satelite_nr++;
         }
+
+        std::cerr << "time taken: " << (get_time() - time) << "s";
     }
 
     return 0;
