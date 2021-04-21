@@ -6,13 +6,14 @@
 
 // positive or negative
 typedef short Chip;
-// 0 or 0xff (=> 1)
+// 0 or 0xffff (=> 1)
 typedef short Bit;
 #define BIT_0 0
 #define BIT_1 0xffff
 
 #define SATELITE_COUNT 24
 #define CHIP_SEQ_LEN 1023
+#define CHIP_SEQ_LEN_PADDED 1024
 
 int satelite_xored_bits[SATELITE_COUNT][2] = {
     {2, 6},  {3, 7}, {4, 8}, {5, 9}, {1, 9}, {2, 10}, {1, 8}, {2, 9},
@@ -110,11 +111,12 @@ void generate_pseudo_random_sequence(int first_xored_bit, int second_xored_bit,
 void check_satelite_sequence(int satelite_nr, const Chip *chip_seq,
                              const Bit *sat_seq)
 {
-    // TODO: one extra
     for (size_t offset = 0; offset < CHIP_SEQ_LEN; offset++)
     {
         __m256i acc = _mm256_setzero_si256();
 
+        // Accesses sat_seq and chip_seq up to CHIP_SEQ_LEN_PADDED.
+        // If sat_seq is padded with zeros this works out in the calculation.
         for (size_t i = 0; i < CHIP_SEQ_LEN; i += 16)
         {
             size_t idx = offset + i;
@@ -164,22 +166,26 @@ int main(int argc, const char **argv)
             exit(1);
         }
 
-        Chip chip_seq[CHIP_SEQ_LEN * 2];
+
+        Chip chip_seq[CHIP_SEQ_LEN + CHIP_SEQ_LEN_PADDED];
 
         read_chip_sequence(f, chip_seq);
+        
+        double time = get_time();
 
         // duplicate to save modulo operation
         memcpy(chip_seq + CHIP_SEQ_LEN, chip_seq, CHIP_SEQ_LEN * sizeof(Chip));
+        chip_seq[CHIP_SEQ_LEN + CHIP_SEQ_LEN_PADDED - 1] = 0;
 
-        double time = get_time();
 
         for (int sat_idx = 0; sat_idx < SATELITE_COUNT; sat_idx++)
         {
-            Bit sat_seq[CHIP_SEQ_LEN];
+            Bit sat_seq[CHIP_SEQ_LEN_PADDED];
 
             generate_pseudo_random_sequence(satelite_xored_bits[sat_idx][0],
                                             satelite_xored_bits[sat_idx][1],
                                             sat_seq);
+            sat_seq[CHIP_SEQ_LEN_PADDED - 1] = 0;
 
             check_satelite_sequence(sat_idx + 1, chip_seq, sat_seq);
         }
