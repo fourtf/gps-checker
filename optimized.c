@@ -121,8 +121,8 @@ void check_satelite_sequence(int satelite_nr, const Chip *chip_seq,
         {
             size_t idx = offset + i;
 
-            __m256i a = _mm256_lddqu_si256(chip_seq + idx);
-            __m256i b = _mm256_lddqu_si256(sat_seq + i);
+            __m256i a = _mm256_lddqu_si256((const __m256i*)(chip_seq + idx));
+            __m256i b = _mm256_lddqu_si256((const __m256i*)(sat_seq + i));
             __m256i res = _mm256_and_si256(a, b);
 
             acc = _mm256_adds_epi16(acc, res);
@@ -135,7 +135,7 @@ void check_satelite_sequence(int satelite_nr, const Chip *chip_seq,
             _mm256_setzero_si256());
 
         short buf[16];
-        _mm256_store_si256(buf, hadded2);
+        _mm256_store_si256((__m256i*)buf, hadded2);
 
         int sum1 = buf[0] + buf[8];
 

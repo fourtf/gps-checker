@@ -119,6 +119,11 @@ int main(int argc, const char **argv)
     else
     {
         auto file = std::ifstream(argv[1], std::ios::binary);
+        if (!file.is_open()) {
+            std::cerr << "file not found";
+            exit(1);
+        }
+
         auto chip_sequence = read_chip_sequence(file);
 
         auto time = get_time();

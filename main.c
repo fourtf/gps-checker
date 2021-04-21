@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "get_time.h"
 
 // positive or negative
 typedef char Chip;
@@ -120,8 +121,9 @@ int main(int argc, const char **argv)
         }
 
         Chip chip_seq[CHIP_SEQ_LEN];
-
         read_chip_sequence(f, chip_seq);
+
+        double time = get_time();
 
         for (int sat_idx = 0; sat_idx < SATELITE_COUNT; sat_idx++)
         {
@@ -133,6 +135,8 @@ int main(int argc, const char **argv)
 
             check_satelite_sequence(sat_idx + 1, chip_seq, sat_seq);
         }
+
+        fprintf(stderr, "time taken: %fs", (get_time() - time));
     }
 
     return 0;
